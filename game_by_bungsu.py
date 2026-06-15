@@ -1,7 +1,6 @@
 import pygame
 import random
 
-
 # 1. Inisialisasi Pygame
 pygame.init()
 
@@ -9,6 +8,26 @@ pygame.init()
 LEBAR, TINGGI = 600, 600 
 screen = pygame.display.set_mode((LEBAR, TINGGI))
 pygame.display.set_caption("game hindar objek")
+
+
+# Load gambar
+mobil_img = pygame.image.load("mobil.png")
+tong_img = pygame.image.load("tong.png")
+jalan_img = pygame.image.load("jalan.png")
+
+# Ubah ukuran
+mobil_img = pygame.transform.scale(mobil_img, (60, 60))
+tong_img = pygame.transform.scale(tong_img, (60, 60))
+jalan_img = pygame.transform.scale(jalan_img, (400, 700))
+
+
+jalan_list = [
+    pygame.image.load("jalan.png"),
+    pygame.image.load("jalan2.png")
+]
+
+for i in range(len(jalan_list)):
+    jalan_list[i] = pygame.transform.scale(jalan_list[i], (LEBAR, TINGGI))
 
 # Warna
 WHITE = (255, 255, 255)
@@ -39,15 +58,37 @@ def draw_text(text, font_type, color, x, y):
     text_rect = img.get_rect(center=(x, y))
     screen.blit(img, text_rect)
 
+
+bg1 = 0
+bg2 = -TINGGI
+
+gambar_atas = 0
+gambar_bawah = 1
+
+bg_speed = 5
+
+
 # 5. Game Loop Utama
 running = True
 while running:
-    screen.fill(BLACK)
+    screen.blit(jalan_list[gambar_atas], (0, bg1))
+    screen.blit(jalan_list[gambar_bawah], (0, bg2))
+
+    bg1 += bg_speed
+    bg2 += bg_speed
+
+    if bg1 >= TINGGI:
+       bg1 = -TINGGI
+       gambar_atas = (gambar_bawah + 1) % len(jalan_list)
+
+    if bg2 >= TINGGI:
+       bg2 = -TINGGI
+       gambar_bawah = (gambar_atas + 1) % len(jalan_list)
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
+     
     # Kontrol Player (Hanya Panah Kiri & Kanan)
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] and p1_x > 0: 
@@ -82,10 +123,11 @@ while running:
             running = False
 
     # 6. Gambar Objek
-    pygame.draw.rect(screen, BLUE, p1_rect) # Gambar Player
+    screen.blit(mobil_img, (p1_x, p1_y))# Gambar Player
     
     for enemy in enemy_list:
-        pygame.draw.rect(screen, RED, enemy) # Gambar Musuh
+        for enemy in enemy_list:
+            screen.blit(tong_img, (enemy.x, enemy.y))# Gambar Musuh
 
     # Gambar Skor
     score_img = font.render(f"Score: {score}", True, WHITE)
